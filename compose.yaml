@@ -1,0 +1,35 @@
+
+services:
+  database:
+    image: mongo:7
+    container_name: recipe-database
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: recipe-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: "3001"
+      DATABASE_URL: mongodb://database:27017/recipeshare
+      JWT_SECRET: some_random_sercret_i_created_today
+    depends_on:
+      - database
+
+  frontend:
+    build: .
+    container_name: recipe-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:
